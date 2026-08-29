@@ -44,6 +44,8 @@ def print_files(per_file, cats, out, mode=None):
     rows.sort(key=lambda row: (-row[0], row[1]))
     header = [(name, "bold") for name in (*cats, "SUM", "file")]
     table = [header, None] + [[*cells, name] for _, name, cells in rows]
+    total = mode_cells(totals, cats, totals, mode if mode == "col" else None, "bold")
+    table += [None, [*total, ("total", "bold")]]
     show_table(table, out, left={len(header) - 1})
     return True
 
@@ -64,6 +66,8 @@ def print_share_files(per_file, cats, out):
     rows.sort(key=lambda row: (-row[0], row[1]))
     table = [[*((cat, "bold") for cat in cats), ("file", "bold")], None]
     table += [[*cells, name] for _, name, cells in rows]
+    total = [share_cell(totals[cat], totals[cat], "bold") for cat in cats]
+    table += [None, [*total, ("total", "bold")]]
     show_table(table, out, left={len(cats)})
     return True
 

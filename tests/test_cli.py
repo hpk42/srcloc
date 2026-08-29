@@ -40,8 +40,9 @@ class TestCount:
         assert listing[3] == ["2", ".", ".", ".", "2", "README.md"]
         assert listing[4] == [".", "1", ".", "1", "2", "pkg.py"]
         assert listing[5] == [".", ".", "2", ".", "2", "tests/test_pkg.py"]
-        assert listing[6] == []
-        assert listing[7][0] == "language"
+        assert listing[7] == ["2", "1", "4", "2", "9", "total"]
+        assert listing[8] == []
+        assert listing[9][0] == "language"
 
     def test_default_is_the_summary_alone(self, tree, run):
         out = run()
@@ -144,7 +145,8 @@ class TestCount:
         monkeypatch.chdir(tmp_path)
         listing = rows(run("-v"))
         assert listing[2] == ["1", "1", "2", ".github/workflows/ci.yml"]
-        assert listing[6] == ["yaml", "1", "1", "1", "2"]
+        assert listing[4] == ["1", "1", "2", "total"]
+        assert listing[8] == ["yaml", "1", "1", "1", "2"]
         assert not any("skip.py" in " ".join(row) for row in listing)
 
     def test_empty_directory(self, tmp_path, monkeypatch, run):
@@ -177,26 +179,28 @@ class TestCategoryViews:
         assert listing[0] == ["test", "file"]
         assert listing[2] == ["2", "[50%]", "lib.rs"]
         assert listing[3] == ["2", "[50%]", "tests/test_pkg.py"]
-        assert listing[4] == []
-        assert not any("pkg.py" == row[-1] for row in listing if row)
+        assert listing[5] == ["4", "[100%]", "total"]
+        assert not any(row and row[-1] == "pkg.py" for row in listing)
 
     def test_language_view(self, tree, run):
         out = run("--python", "-v")
         listing = rows(out)
         assert listing[0] == ["comment", "test", "code", "SUM", "file"]
         assert listing[2] == ["1", ".", "1", "2", "pkg.py"]
+        assert listing[5] == ["1", "2", "1", "4", "total"]
         assert "lib.rs" not in out
-        assert listing[5] == ["category", "python"]
-        assert listing[7] == ["comment", "1", "[25%]"]
-        assert listing[8] == ["test", "2", "[50%]"]
+        assert listing[7] == ["category", "python"]
+        assert listing[9] == ["comment", "1", "[25%]"]
+        assert listing[10] == ["test", "2", "[50%]"]
         assert listing[-1] == ["total", "4", "[100%]"]
 
     def test_language_and_category(self, tree, run):
         listing = rows(run("--python", "--test", "-v"))
         assert listing[0] == ["test", "file"]
         assert listing[2] == ["2", "[100%]", "tests/test_pkg.py"]
-        assert listing[4] == ["category", "python"]
-        assert listing[6] == ["test", "2", "[100%]"]
+        assert listing[4] == ["2", "[100%]", "total"]
+        assert listing[6] == ["category", "python"]
+        assert listing[8] == ["test", "2", "[100%]"]
 
     def test_language_without_the_category(self, tree, run):
         assert run("--markdown", "--test") == "no counted lines\n"

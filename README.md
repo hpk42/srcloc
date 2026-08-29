@@ -1,9 +1,49 @@
 # srcloc: line counting for source trees
 
-srcloc counts how a tree splits into doc, comment, config,
-testdata, test and code lines, here on chatmail's filtermail relay:
+srcloc counts how a tree splits into doc,
+comment, config, testdata, test and code lines.
 
-    $ srcloc
+## Install
+
+    uv tool install srcloc
+
+## Examples
+
+### Comparing a git diff
+
+    chatmail/core$ git diff main.. | srcloc
+    category          added   removed   net
+    ---------------   -----   -------   ----
+    comment  rust      +100        -7    +93
+    testdata eml        +15        -0    +15
+    test     python     +37        -0    +37
+    test     rust      +432       -16   +416
+    code     rust      +379      -133   +246
+    ---------------   -----   -------   ----
+    total              +963      -156   +807
+
+### One category across the files
+
+    chatmail/srcloc$ srcloc --test -v
+       test      file
+    ----------   ---------------------
+    339 [ 35%]   tests/test_cli.py
+    337 [ 35%]   tests/test_kinds.py
+    132 [ 14%]   tests/test_collect.py
+    109 [ 11%]   tests/test_tables.py
+     57 [  6%]   tests/conftest.py
+    ----------   ---------------------
+    974 [100%]   total
+
+    language      test
+    --------   ----------
+    python     974 [100%]
+    --------   ----------
+    total      974 [100%]
+
+### Counting a source tree
+
+    chatmail/filtermail$ srcloc
     language   NUMFILES   doc   comment   config   testdata   test   code   SUM
     --------   --------   ---   -------   ------   --------   ----   ----   ----
     rust             21     .       464        .          .    670   2746   3880
@@ -16,83 +56,42 @@ testdata, test and code lines, here on chatmail's filtermail relay:
     total            55   331       509      284        513    670   2746   5053
 
 
+### Per-file counts, columns as percentages
 
-    $ srcloc -v
-    doc   comment   config   test   code   SUM   file
-    ---   -------   ------   ----   ----   ---   -----------------------------
-      .         .        .    337      .   337   tests/test_kinds.py
-      .         .        .    335      .   335   tests/test_cli.py
-      .        23        .      .    231   254   srcloc/kinds.py
-      .         9        .      .    233   242   srcloc/cli.py
-      .        20        .      .    191   211   srcloc/views.py
-    189         .        .      .      .   189   README.md
-      .        14        .      .    165   179   srcloc/langs.py
-      .        21        .      .    134   155   srcloc/collect.py
-      .         .        .    132      .   132   tests/test_collect.py
-      .         .        .    109      .   109   tests/test_tables.py
-      .        24       60      .      .    84   cliff.toml
-      .        16        .      .     64    80   srcloc/tables.py
-      .         .        .     57      .    57   tests/conftest.py
-      .        22       24      .      .    46   .github/workflows/release.yml
-      .         .       37      .      .    37   pyproject.toml
-      .         1       15      .      .    16   .github/workflows/ci.yml
-      .         1        .      .      .     1   srcloc/__init__.py
-      .         .        .      .      .     .   CHANGELOG.md
+    chatmail/srcloc$ srcloc -v -c
+       doc        comment       config        test         code       SUM    file
+    ----------   ----------   ----------   ----------   -----------   ----   -----------------------------
+             .            .            .   339 [ 35%]             .    339   tests/test_cli.py
+             .            .            .   337 [ 35%]             .    337   tests/test_kinds.py
+             .    23 [ 15%]            .            .    231 [ 23%]    254   srcloc/kinds.py
+             .     9 [  6%]            .            .    233 [ 23%]    242   srcloc/cli.py
+             .    20 [ 13%]            .            .    195 [ 19%]    215   srcloc/views.py
+    191 [ 99%]            .            .            .             .    191   README.md
+             .    14 [  9%]            .            .    165 [ 16%]    179   srcloc/langs.py
+             .    21 [ 14%]            .            .    134 [ 13%]    155   srcloc/collect.py
+             .            .            .   132 [ 14%]             .    132   tests/test_collect.py
+             .            .            .   109 [ 11%]             .    109   tests/test_tables.py
+             .    24 [ 16%]    60 [ 44%]            .             .     84   cliff.toml
+             .    16 [ 11%]            .            .     64 [  6%]     80   srcloc/tables.py
+             .            .            .    57 [  6%]             .     57   tests/conftest.py
+             .    22 [ 15%]    24 [ 18%]            .             .     46   .github/workflows/release.yml
+             .            .    37 [ 27%]            .             .     37   pyproject.toml
+             .     1 [  1%]    15 [ 11%]            .             .     16   .github/workflows/ci.yml
+      2 [  1%]            .            .            .             .      2   CHANGELOG.md
+             .     1 [  1%]            .            .             .      1   srcloc/__init__.py
+             .            .            .            .             .      .   tests/__init__.py
+    ----------   ----------   ----------   ----------   -----------   ----   -----------------------------
+    193 [100%]   151 [100%]   136 [100%]   974 [100%]   1022 [100%]   2476   total
 
-    language   NUMFILES   doc   comment   config   test   code   SUM
-    --------   --------   ---   -------   ------   ----   ----   ----
-    python           12     .       104        .    970   1018   2092
-    markdown          2   189         .        .      .      .    189
-    toml              2     .        24       97      .      .    121
-    yaml              2     .        23       39      .      .     62
-    unknown           1     .         .        .      .      .      .
-    --------   --------   ---   -------   ------   ----   ----   ----
-    total            19   189       151      136    970   1018   2464
-
-
-
-
-    $ git diff main.. | srcloc
-    category          added   removed   net
-    ---------------   -----   -------   ----
-    comment  rust      +100        -7    +93
-    testdata eml        +15        -0    +15
-    test     python     +37        -0    +37
-    test     rust      +432       -16   +416
-    code     rust      +379      -133   +246
-    ---------------   -----   -------   ----
-    total              +963      -156   +807
-
-
-    $ srcloc --comment -v
-    comment    file
-    --------   -----------------------------
-    24 [18%]   cliff.toml
-    23 [17%]   srcloc/kinds.py
-    22 [16%]   .github/workflows/release.yml
-    21 [15%]   srcloc/collect.py
-    16 [12%]   srcloc/tables.py
-    13 [ 9%]   srcloc/langs.py
-    13 [ 9%]   srcloc/views.py
-     3 [ 2%]   srcloc/cli.py
-     1 [ 1%]   .github/workflows/ci.yml
-     1 [ 1%]   srcloc/__init__.py
-
-    language    comment
-    --------   ----------
-    python      90 [ 66%]
-    toml        24 [ 18%]
-    yaml        23 [ 17%]
-    --------   ----------
-    total      137 [100%]
-
-
-## Install
-
-    uv tool install srcloc
-
-Bash completion: add `eval "$(srcloc --completion)"` to `~/.bashrc`.
-
+    language   NUMFILES      doc        comment       config        test         code       SUM
+    --------   --------   ----------   ----------   ----------   ----------   -----------   ----
+    python           13            .   104 [ 69%]            .   974 [100%]   1022 [100%]   2100
+    markdown          2   193 [100%]            .            .            .             .    193
+    toml              2            .    24 [ 16%]    97 [ 71%]            .             .    121
+    yaml              2            .    23 [ 15%]    39 [ 29%]            .             .     62
+    unknown           2            .            .            .            .             .      .
+    --------   --------   ----------   ----------   ----------   ----------   -----------   ----
+    total            21   193 [100%]   151 [100%]   136 [100%]   974 [100%]   1022 [100%]   2476
 
 ## JSON
 
