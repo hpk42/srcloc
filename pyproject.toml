@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "setuptools-git-versioning >=2.0,<3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "srcloc"
+readme = "README.md"
+description = "count doc, comment, config, testdata, test and code lines in source trees"
+requires-python = ">=3.11"
+dependencies = []
+
+dynamic = ["version"]
+
+[tool.setuptools-git-versioning]
+enabled = true
+
+[tool.setuptools]
+packages = ["srcloc"]
+
+[project.urls]
+Repository = "https://github.com/hpk42/srcloc"
+Changelog = "https://github.com/hpk42/srcloc/blob/main/CHANGELOG.md"
+
+[project.scripts]
+srcloc = "srcloc.cli:main"
+
+[dependency-groups]
+test = [
+  "pytest",
+]
+
+[tool.pytest.ini_options]
+addopts = "-v -ra --strict-markers"
+testpaths = ["tests"]
+
+[tool.ruff]
+lint.select = [
+  "F", # Pyflakes
+  "I", # isort
+
+  "PLC", # Pylint Convention
+  "PLE", # Pylint Error
+  "PLW", # Pylint Warning
+]
+lint.ignore = [
+  "PLC0415" # import-outside-top-level
+]
